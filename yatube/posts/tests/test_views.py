@@ -132,7 +132,7 @@ class PostPagesTests(TestCase):
         form_data = {
             'text': 'Тестовый comment',
             'author': self.user,
-            'post' : self.post
+            'post': self.post
         }
         # Отправляем POST-запрос
         response = self.guest_client.post(
@@ -147,7 +147,7 @@ class PostPagesTests(TestCase):
         form_data = {
             'text': 'Тестовый comment',
             'author': self.user,
-            'post' : self.post
+            'post': self.post
         }
         comment = Comment.objects.create(
             text='Тестовый comment',
@@ -159,8 +159,9 @@ class PostPagesTests(TestCase):
             data=form_data,
             follow=True
         )
-        self.assertRedirects(response, reverse('posts:post_detail', 
-                                               kwargs={'post_id': self.post.id}))
+        self.assertRedirects(response,
+                             reverse('posts:post_detail',
+                                     kwargs={'post_id': self.post.id}))
         response = self.authorized_client.get(
             reverse('posts:post_detail', kwargs={'post_id': self.post.id}),
             data=form_data,
@@ -171,9 +172,9 @@ class PostPagesTests(TestCase):
     def test_cache(self):
         posts_count = Post.objects.count()
         post = Post.objects.create(
-            text = 'Тестовый text',
-            author = self.user,
-            group = self.group
+            text='Тестовый text',
+            author=self.user,
+            group=self.group
         )
         response = self.authorized_client.get(reverse('posts:index'))
         response_posts_count = len(response.context['page_obj'])
@@ -189,7 +190,8 @@ class PostPagesTests(TestCase):
         self.assertEqual(response_content_cached, response.content)
         # чистим кэш
         cache.clear()
-        # делаем запрос (помним мы удалили пост значит должен измениться контекст)
+        # делаем запрос (помним мы удалили пост
+        # значит должен измениться контекст)
         response = self.authorized_client.get(reverse('posts:index'))
         # проверяем что первоначальный контекст с текущим уже не бьет
         self.assertNotEqual(response_content_cached, response.content)
@@ -222,16 +224,14 @@ class TestFollowViews(TestCase):
         """
         self.authorized_client.get(
             reverse(
-            'posts:profile_follow',
-            args=[TestFollowViews.author],
-        ))
+                'posts:profile_follow',
+                args=[TestFollowViews.author],))
         create_follow = Follow.objects.values_list('user', flat=True)
         self.assertIn(TestFollowViews.user.id, create_follow)
         self.authorized_client.get(
             reverse(
-            'posts:profile_unfollow',
-            args=[TestFollowViews.author],
-        ))
+                'posts:profile_unfollow',
+                args=[TestFollowViews.author],))
         create_follow = Follow.objects.values_list('user', flat=True)
         self.assertNotIn(TestFollowViews.user.id, create_follow)
 
@@ -243,9 +243,8 @@ class TestFollowViews(TestCase):
         # Подписались на автора
         self.authorized_client.get(
             reverse(
-            'posts:profile_follow',
-            args=[TestFollowViews.author],
-        ))
+                'posts:profile_follow',
+                args=[TestFollowViews.author],))
         response = self.authorized_client.get(
             reverse('posts:follow_index')
         )
@@ -254,9 +253,8 @@ class TestFollowViews(TestCase):
         # отписались от автора
         self.authorized_client.get(
             reverse(
-            'posts:profile_unfollow',
-            args=[TestFollowViews.author],
-        ))
+                'posts:profile_unfollow',
+                args=[TestFollowViews.author],))
         response = self.authorized_client.get(
             reverse('posts:follow_index')
         )

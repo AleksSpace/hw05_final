@@ -40,10 +40,6 @@ class PostCreateFormTests(TestCase):
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        # Модуль shutil - библиотека Python с удобными инструментами 
-        # для управления файлами и директориями: 
-        # создание, удаление, копирование, перемещение, изменение папок и файлов
-        # Метод shutil.rmtree удаляет директорию и всё её содержимое
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
     def setUp(self):
@@ -61,13 +57,13 @@ class PostCreateFormTests(TestCase):
         # Подсчитаем количество записей в Post
         post_count = Post.objects.count()
         # Создаём картинку
-        small_gif = (            
-             b'\x47\x49\x46\x38\x39\x61\x02\x00'
-             b'\x01\x00\x80\x00\x00\x00\x00\x00'
-             b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-             b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-             b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-             b'\x0A\x00\x3B'
+        small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+            b'\x0A\x00\x3B'
         )
         # Загружаем картинку
         uploaded = SimpleUploadedFile(
@@ -83,7 +79,7 @@ class PostCreateFormTests(TestCase):
         )
         urls = [
             reverse('posts:index'),
-            reverse('posts:profile', kwargs={'username': self.user} ),
+            reverse('posts:profile', kwargs={'username': self.user}),
             reverse('posts:group_posts', kwargs={'slug': 'test_slug'}),
         ]
         # Проверяем, увеличилось ли число постов
@@ -92,9 +88,11 @@ class PostCreateFormTests(TestCase):
         for url in urls:
             with self.subTest(url=url):
                 response = self.authorized_client.get(url)
-                self.assertEqual(response.context['page_obj'][0].image, post.image)
+                self.assertEqual(
+                    response.context['page_obj'][0].image, post.image)
         # Проверяем передаётся ли изображение в контексте post_detail
-        url_post_detail = reverse('posts:post_detail', kwargs={'post_id': post.id})
+        url_post_detail = reverse('posts:post_detail',
+                                  kwargs={'post_id': post.id})
         response = self.authorized_client.get(url_post_detail)
         self.assertEqual(response.context['post'].image, post.image)
 

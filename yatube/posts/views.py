@@ -75,7 +75,7 @@ def post_detail(request, post_id):
     comments = post.comments.all()
     post_count = Post.objects.filter(author=post.author).count()
     form = CommentForm()
-    
+
     context = {
         'post_count': post_count,
         'post': post,
@@ -83,6 +83,7 @@ def post_detail(request, post_id):
         'form': form
     }
     return render(request, template, context)
+
 
 @login_required
 def add_comment(request, post_id):
@@ -94,6 +95,7 @@ def add_comment(request, post_id):
         comment.post = post
         comment.save()
     return redirect('posts:post_detail', post_id=post_id)
+
 
 @login_required
 def post_create(request):
@@ -137,6 +139,7 @@ def post_edit(request, post_id, is_edit=True):
 
     return render(request, template, context)
 
+
 @login_required
 def follow_index(request):
     user = request.user
@@ -153,6 +156,7 @@ def follow_index(request):
     }
     return render(request, 'posts/follow.html', context)
 
+
 @login_required
 def profile_follow(request, username):
     # Подписаться на автора
@@ -165,6 +169,7 @@ def profile_follow(request, username):
             username=username
         )
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 @login_required
 def profile_unfollow(request, username):

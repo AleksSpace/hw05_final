@@ -4,8 +4,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import cache_page
 
-from .forms import PostForm, CommentForm
-from .models import Group, Post, User, Follow
+from .forms import CommentForm, PostForm
+from .models import Follow, Group, Post, User
 
 
 @cache_page(20)

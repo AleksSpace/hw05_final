@@ -1,0 +1,25 @@
+<!-- templates/about/author.html -->
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Об авторе проекта{% endblock %}
+{% block content %}
+  <div class="row">
+    <div class="col-4">
+      <img src="{% static 'img\my_photo.png' %}" style="position: relative; left: 500px; top: 150px">
+    </div>
+    <div class="col-8">
+      <h1 style="position: relative; text-align: center; top: 150px">
+        Привет, меня зовут Заикин Алексей<br>
+        я автор этого блога!
+      </h1>
+      <p style="position: relative; top: 330px; text-align: center">
+        Примерно 2 года назад я увлёкся созданием сайтов. Обучился созданию сайтов на Tilda.<br>
+        Долгое время делал сайты только там, но мне этого стало мало.<br>
+        Мне было интересно как всё это работает. И тогда я начал мониторить площадки на<br>
+        которых можно обучиться кодить по взрослому.<br>
+        Я сравнивал Skillbox, GeekBrains и <a href= "https://practicum.yandex.ru/">Яндекс.Практикум</a><br>
+        Теперь у меня цель научиться кодить на Python и устроиться на работу в IT компанию.
+      </p>
+    </div>
+  </div>
+{% endblock %}

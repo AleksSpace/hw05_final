@@ -46,7 +46,7 @@ class PostImgTests(TestCase):
         # Создаем неавторизованный клиент
         self.guest_client = Client()
         # Создаем пользователя
-        self.user = PostCreateFormTests.user
+        self.user = PostImgTests.user
         # Создаем второй клиент
         self.authorized_client = Client()
         # Авторизуем пользователя

@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.test import Client, TestCase
-
 from posts.models import Group, Post
 
 User = get_user_model()

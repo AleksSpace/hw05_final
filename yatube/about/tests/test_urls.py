@@ -1,4 +1,3 @@
-# posts/tests/tests_url.py
 from django.test import Client, TestCase
 
 

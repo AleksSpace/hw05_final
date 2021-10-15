@@ -61,7 +61,8 @@ def profile(request, username):
         ).filter(
             author=author.id
         )
-        if check_follow.exists():
+        result_exists = check_follow.exists()
+        if result_exists:
             context['following'] = True
         else:
             context['following'] = False
@@ -73,7 +74,7 @@ def post_detail(request, post_id):
     template = 'posts/post_detail.html'
     post = get_object_or_404(Post, id=post_id)
     comments = post.comments.all()
-    post_count = Post.objects.filter(author=post.author).count()
+    post_count = post.author.posts.count()
     form = CommentForm()
 
     context = {
@@ -160,7 +161,7 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     # Подписаться на автора
-    author = User.objects.get(username=username)
+    author = get_object_or_404(User, username=username)
     user = request.user
     if author != user:
         Follow.objects.get_or_create(user=user, author=author)
@@ -168,7 +169,7 @@ def profile_follow(request, username):
             'posts:profile',
             username=username
         )
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('posts:profile', username=username)
 
 
 @login_required
@@ -176,4 +177,4 @@ def profile_unfollow(request, username):
     # Дизлайк, отписка
     user = request.user
     Follow.objects.get(user=user, author__username=username).delete()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('posts:profile', username=username)

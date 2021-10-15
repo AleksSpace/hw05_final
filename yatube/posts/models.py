@@ -9,6 +9,10 @@ class Group(models.Model):
     slug = models.SlugField(unique=True, db_index=True, verbose_name="URL")
     description = models.TextField()
 
+    class Meta:
+        verbose_name = 'группа'
+        verbose_name_plural = 'группы'
+
     def __str__(self):
         return self.title
 
@@ -18,7 +22,7 @@ class Post(models.Model):
         verbose_name='Текст нового поста',
         help_text='Введите текст поста')
     pub_date = models.DateTimeField(
-        verbose_name='Текст нового поста',
+        verbose_name='Дата',
         auto_now_add=True)
     author = models.ForeignKey(
         User,
@@ -61,12 +65,16 @@ class Comment(models.Model):
     text = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'комментарии'
+
 
 class Follow(models.Model):
     # пользователь, который подписывается
     user = models.ForeignKey(
         User,
-        on_delete=None,
+        on_delete=models.CASCADE,
         related_name='follower'
     )
     # пользователь, на которого подписывются
@@ -74,3 +82,8 @@ class Follow(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='following')
+
+    class Meta:
+        verbose_name = 'подписка'
+        verbose_name_plural = 'подписки'
+        unique_together = ('user', 'author')

@@ -6,8 +6,9 @@ from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
+from http import HTTPStatus
 
-from posts.models import Group, Post
+from posts.models import Group, Post, Comment
 
 User = get_user_model()
 
@@ -17,7 +18,7 @@ TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
-class PostCreateFormTests(TestCase):
+class PostImgTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -96,6 +97,43 @@ class PostCreateFormTests(TestCase):
         response = self.authorized_client.get(url_post_detail)
         self.assertEqual(response.context['post'].image, post.image)
 
+
+class PostCreateFormTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # создаём автора
+        cls.user = User.objects.create(
+            username='auth'
+        )
+        # создаём группу
+        cls.group = Group.objects.create(
+            title='Тестовая группа',
+            slug='test_slug',
+        )
+        # создаём пост
+        cls.post = Post.objects.create(
+            text='Тестовый текст',
+            author=cls.user,
+            group=cls.group,
+        )
+        # создаём комментарий
+        cls.comment = Comment.objects.create(
+            text='Тестовый комментарий',
+            author=cls.user,
+            post=cls.post
+        )
+
+    def setUp(self):
+        # Создаем неавторизованный клиент
+        self.guest_client = Client()
+        # Создаем пользователя
+        self.user = PostCreateFormTests.user
+        # Создаем второй клиент
+        self.authorized_client = Client()
+        # Авторизуем пользователя
+        self.authorized_client.force_login(self.user)    
+
     def test_create_post(self):
         ''' Тест на создание новой записи в БД при добавлении нового поста '''
         # Подсчитаем количество записей в Post
@@ -138,3 +176,46 @@ class PostCreateFormTests(TestCase):
         self.assertEqual(self.post, edited_post, (
             ' Пост не отредактирован '
         ))
+
+    def test_guest_user_cant_comment(self):
+        """ Оставлять комментарий может только авторизованный пользователь """
+        comment_count = Comment.objects.count()
+        form_data = {
+            'text': 'Тестовый comment',
+            'author': self.user,
+            'post': self.post
+        }
+        # Отправляем POST-запрос
+        response = self.guest_client.post(
+            reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(Comment.objects.count(), comment_count)
+
+    def test_comment_on_the_post_page(self):
+        form_data = {
+            'text': 'Тестовый comment',
+            'author': self.user,
+            'post': self.post
+        }
+        comment = Comment.objects.create(
+            text='Тестовый comment',
+            author=self.user,
+            post=self.post
+        )
+        response = self.authorized_client.get(
+            reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
+            data=form_data,
+            follow=True
+        )
+        self.assertRedirects(response,
+                             reverse('posts:post_detail',
+                                     kwargs={'post_id': self.post.id}))
+        response = self.authorized_client.get(
+            reverse('posts:post_detail', kwargs={'post_id': self.post.id}),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(response.context['comments'][1].text, comment.text)

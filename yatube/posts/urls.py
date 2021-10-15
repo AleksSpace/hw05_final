@@ -1,4 +1,3 @@
-# posts/urls.py
 from django.urls import path
 
 from . import views
@@ -24,6 +23,6 @@ urlpatterns = [
     path(
         'profile/<str:username>/unfollow/',
         views.profile_unfollow,
-        name="profile_unfollow"
+        name='profile_unfollow'
     ),
 ]

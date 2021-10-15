@@ -48,12 +48,14 @@ class PostURLTests(TestCase):
             '/profile/auth/': 'posts/profile.html',
             '/posts/1/': 'posts/post_detail.html',
             '/create/': 'posts/create_post.html',
-            '/posts/1/edit/': 'posts/create_post.html',
+            '/posts/1/edit/': 'posts/create_post.html'
         }
         for adress, template in templates_url_names.items():
             # создаём список страниц, который доступен
             # только авторизованному пользователю
-            authorized_templates = ['/create/', '/posts/1/edit/']
+            authorized_templates = ['/create/',
+                                    '/posts/1/edit/',
+                                    '/follow/']
             with self.subTest(adress=adress):
                 # проверяем, что если шаблоны ['/create/', '/posts/1/edit/']
                 # есть среди адресов, то проходит проверка авторизованным

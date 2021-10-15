@@ -3,7 +3,7 @@ from django.core.cache import cache
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from posts.models import Comment, Follow, Group, Post
+from posts.models import Follow, Group, Post
 
 User = get_user_model()
 
@@ -26,12 +26,6 @@ class PostPagesTests(TestCase):
             text='Тестовый текст',
             author=cls.user,
             group=cls.group
-        )
-        # создаём комментарий
-        cls.comment = Comment.objects.create(
-            text='Тестовый комментарий',
-            author=cls.user,
-            post=cls.post
         )
 
     def setUp(self):
@@ -126,49 +120,6 @@ class PostPagesTests(TestCase):
             ' Пост автора не отображается на странице автора '
         ))
 
-    def test_comment_authorized_user(self):
-        """ Оставлять комментарий может только авторизованный пользователь """
-        comment_count = Comment.objects.count()
-        form_data = {
-            'text': 'Тестовый comment',
-            'author': self.user,
-            'post': self.post
-        }
-        # Отправляем POST-запрос
-        response = self.guest_client.post(
-            reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
-            data=form_data,
-            follow=True
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Comment.objects.count(), comment_count)
-
-    def test_comment_on_the_post_page(self):
-        form_data = {
-            'text': 'Тестовый comment',
-            'author': self.user,
-            'post': self.post
-        }
-        comment = Comment.objects.create(
-            text='Тестовый comment',
-            author=self.user,
-            post=self.post
-        )
-        response = self.authorized_client.get(
-            reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
-            data=form_data,
-            follow=True
-        )
-        self.assertRedirects(response,
-                             reverse('posts:post_detail',
-                                     kwargs={'post_id': self.post.id}))
-        response = self.authorized_client.get(
-            reverse('posts:post_detail', kwargs={'post_id': self.post.id}),
-            data=form_data,
-            follow=True
-        )
-        self.assertEqual(response.context['comments'][1].text, comment.text)
-
     def test_cache(self):
         posts_count = Post.objects.count()
         post = Post.objects.create(
@@ -220,14 +171,26 @@ class TestFollowViews(TestCase):
 
     def test_auth_follow(self):
         """ Авторизованный пользователь может подписываться на других
-            пользователей и удалять их из подписок.
+            пользователей.
         """
+        # Подписался на автора
         self.authorized_client.get(
             reverse(
                 'posts:profile_follow',
                 args=[TestFollowViews.author],))
         create_follow = Follow.objects.values_list('user', flat=True)
         self.assertIn(TestFollowViews.user.id, create_follow)
+
+    def test_auth_unfollow(self):
+        """ Авторизованный пользователь может отписываться от других
+            пользователей.
+        """
+        # Подписался на автора
+        self.authorized_client.get(
+            reverse(
+                'posts:profile_follow',
+                args=[TestFollowViews.author],))
+        # Отписался от автора
         self.authorized_client.get(
             reverse(
                 'posts:profile_unfollow',
@@ -235,9 +198,9 @@ class TestFollowViews(TestCase):
         create_follow = Follow.objects.values_list('user', flat=True)
         self.assertNotIn(TestFollowViews.user.id, create_follow)
 
-    def test_new_post(self):
+    def test_new_post_follow(self):
         """ Новая запись пользователя появляется в ленте тех, кто на него
-            подписан и не появляется в ленте тех, кто не подписан на него.
+            подписан.
         """
         posts_count = Post.objects.count()
         # Подписались на автора
@@ -250,6 +213,20 @@ class TestFollowViews(TestCase):
         )
         response_posts_count = len(response.context['page_obj'])
         self.assertEqual(posts_count, response_posts_count)
+
+    def test_new_post_unfollow(self):
+        """ Новая запись пользователя не появляется в ленте тех,
+            кто не подписан на него.
+        """
+        # Подписались на автора
+        self.authorized_client.get(
+            reverse(
+                'posts:profile_follow',
+                args=[TestFollowViews.author],))
+        response = self.authorized_client.get(
+            reverse('posts:follow_index')
+        )
+        response_posts_count_follow = len(response.context['page_obj'])
         # отписались от автора
         self.authorized_client.get(
             reverse(
@@ -258,8 +235,9 @@ class TestFollowViews(TestCase):
         response = self.authorized_client.get(
             reverse('posts:follow_index')
         )
-        response_posts_count = len(response.context['page_obj'])
-        self.assertEqual(posts_count - 1, response_posts_count)
+        response_posts_count_unfollow = len(response.context['page_obj'])
+        self.assertEqual(response_posts_count_follow - 1,
+                         response_posts_count_unfollow)
 
 
 class PaginatorViewsTest(TestCase):

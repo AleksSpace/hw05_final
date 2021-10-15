@@ -131,7 +131,7 @@ class PostCreateFormTests(TestCase):
         # Создаем второй клиент
         self.authorized_client = Client()
         # Авторизуем пользователя
-        self.authorized_client.force_login(self.user)    
+        self.authorized_client.force_login(self.user)
 
     def test_create_post(self):
         ''' Тест на создание новой записи в БД при добавлении нового поста '''

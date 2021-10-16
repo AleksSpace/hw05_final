@@ -14,6 +14,7 @@ def get_paginator(request, object_list):
     page_number = request.GET.get('page')
     return paginator.get_page(page_number)
 
+
 @cache_page(20)
 def index(request):
     template = 'posts/index.html'

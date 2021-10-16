@@ -50,7 +50,6 @@ class PostImgTests(TestCase):
             content_type='image/gif'
         )
 
-
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()

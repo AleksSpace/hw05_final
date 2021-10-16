@@ -68,9 +68,9 @@ class PostPagesTests(TestCase):
         response_text = response.context['page_obj'][0].text
         response_author = response.context['page_obj'][0].author
         response_group = response.context['page_obj'][0].group
-        self.assertEqual(response_text, 'Тестовый текст')
-        self.assertEqual(response_author.username, 'auth')
-        self.assertEqual(response_group.title, 'Тестовая группа')
+        self.assertEqual(response_text, self.post.text)
+        self.assertEqual(response_author.username, self.user.username)
+        self.assertEqual(response_group.title, self.group.title)
 
     def test_post_on_the_home_page(self):
         """ Тест на появление поста на главной странице после создания """
@@ -185,15 +185,12 @@ class TestFollowViews(TestCase):
             пользователей.
         """
         # Подписался на автора
-        self.authorized_client.get(
-            reverse(
-                'posts:profile_follow',
-                args=[TestFollowViews.author],))
+        Follow.objects.create(user=self.user, author=self.user)
         # Отписался от автора
         self.authorized_client.get(
             reverse(
                 'posts:profile_unfollow',
-                args=[TestFollowViews.author],))
+                kwargs={'username': self.user}))
         create_follow = Follow.objects.values_list('user', flat=True)
         self.assertNotIn(TestFollowViews.user.id, create_follow)
 
@@ -201,27 +198,28 @@ class TestFollowViews(TestCase):
         """ Новая запись пользователя появляется в ленте тех, кто на него
             подписан.
         """
+        post = Post.objects.create(
+            author=self.user,
+            text='Test post')
         posts_count = Post.objects.count()
         # Подписались на автора
-        self.authorized_client.get(
-            reverse(
-                'posts:profile_follow',
-                args=[TestFollowViews.author],))
+        Follow.objects.create(user=self.user, author=self.user)
         response = self.authorized_client.get(
             reverse('posts:follow_index')
         )
         response_posts_count = len(response.context['page_obj'])
-        self.assertEqual(posts_count, response_posts_count)
+        self.assertEqual(posts_count, response_posts_count + 1)
+        self.assertEqual(response.context['page_obj'][0].text, post.text)
 
     def test_new_post_unfollow(self):
         """ Новая запись пользователя не появляется в ленте тех,
             кто не подписан на него.
         """
+        Post.objects.create(
+            author=self.user,
+            text='Test post')
         # Подписались на автора
-        self.authorized_client.get(
-            reverse(
-                'posts:profile_follow',
-                args=[TestFollowViews.author],))
+        Follow.objects.create(user=self.user, author=self.user)
         response = self.authorized_client.get(
             reverse('posts:follow_index')
         )
@@ -230,7 +228,7 @@ class TestFollowViews(TestCase):
         self.authorized_client.get(
             reverse(
                 'posts:profile_unfollow',
-                args=[TestFollowViews.author],))
+                kwargs={'username': self.user}))
         response = self.authorized_client.get(
             reverse('posts:follow_index')
         )
@@ -252,6 +250,9 @@ class PaginatorViewsTest(TestCase):
             text=f'Тестовое сообщение{i}',
             author=cls.user)
             for i in range(cls.POSTS_COUNT)])
+
+    def setUp(self):
+        cache.clear()
 
     def test_first_page_contains_ten_records(self):
         """Тестируем Paginator.Первые 10 постов на первой странице index"""

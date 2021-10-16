@@ -6,15 +6,20 @@ from django.views.decorators.cache import cache_page
 from .forms import CommentForm, PostForm
 from .models import Follow, Group, Post, User
 
+PAGE_POST = 10
+
+
+def get_paginator(request, object_list):
+    paginator = Paginator(object_list, PAGE_POST)
+    page_number = request.GET.get('page')
+    return paginator.get_page(page_number)
 
 @cache_page(20)
 def index(request):
     template = 'posts/index.html'
     post_list = Post.objects.all()
 
-    paginator = Paginator(post_list, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = get_paginator(request, post_list)
 
     context = {
         'page_obj': page_obj,
@@ -28,9 +33,7 @@ def group_posts(request, slug):
     template = 'posts/group_list.html'
     posts = group.posts.all()
 
-    paginator = Paginator(posts, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = get_paginator(request, posts)
 
     context = {
         'group': group,
@@ -45,9 +48,8 @@ def profile(request, username):
     post_user = author.posts.all()
     post_count = post_user.count()
 
-    paginator = Paginator(post_user, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = get_paginator(request, post_user)
+
     context = {
         'page_obj': page_obj,
         'post_count': post_count,
@@ -146,13 +148,11 @@ def follow_index(request):
     authors = user.follower.values_list('author', flat=True)
     posts_list = Post.objects.filter(author__id__in=authors)
 
-    paginator = Paginator(posts_list, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = get_paginator(request, posts_list)
 
     context = {
         'page_obj': page_obj,
-        'paginator': paginator
+        'page_obj': page_obj
     }
     return render(request, 'posts/follow.html', context)
 

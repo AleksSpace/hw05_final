@@ -8,27 +8,31 @@
 {% block content %}
   <!-- класс py-5 создает отступы сверху и снизу блока -->
   {% cache 20 index_page %}
-  <div class="container py-5">
+  <h1 style="text-align: center" class="py-5">Последние обновления на сайте</h1>
+  <div class="container">
     {% include 'posts/includes/switcher.html' %}
-    <h1>Последние обновления на сайте</h1>
     {% for post in page_obj %}
-      <ul>
-        <li>
-          Автор: {{ post.author.get_full_name }}
-        </li>
-        <li>
-          Дата публикации: {{ post.pub_date|date:"d M Y" }}
-        </li>
-      </ul>
-      {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
-        <img class="card-img my-2" src="{{ im.url }}">
-      {% endthumbnail %}
-    <p>{{ post.text }}</p>
-    <a href="{% url 'posts:post_detail' post.pk %}">подробная информация</a><br> 
-    {% if post.group %}    
-      <a href="{% url 'posts:group_posts' post.group.slug %}">все записи группы</a>
-    {% endif %}
-    {% if not forloop.last %}<hr>{% endif %}
+      <div class="row mb-2">
+          <div class="col-mb-6">
+              <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                  <div class="col p-4 d-flex flex-column position-static">
+                    <strong class="d-inline-block mb-2 text-primary">Автор: {{ post.author.get_full_name }}</strong>
+                    <div class="mb-1 text-muted">Дата публикации: {{ post.pub_date|date:"d M Y" }}</div>
+                    <h1>{{ post.title }}</h1>
+                    <p class="card-text mb-auto">{{ post.text|truncatechars:200 }}</p>
+                    <a href="{% url 'posts:post_detail' post.pk %}" class="stretched-link">Подробная информация</a>
+                    {% if post.group %}
+                        <a href="{% url 'posts:group_posts' post.group.slug %}">Все записи группы</a>
+                    {% endif %}
+                  </div>
+                  <div class="col-auto d-none d-lg-block">
+                    {% thumbnail post.image "400x400" crop="center" upscale=True as im %}
+                        <img class="bd-placeholder-img" width="400" height="400" src="{{ im.url }}">
+                    {% endthumbnail %}
+                  </div>
+              </div>
+          </div>
+      </div>
     {% endfor %}
   </div>
   {% endcache %}

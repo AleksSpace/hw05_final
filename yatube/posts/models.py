@@ -21,6 +21,12 @@ class Post(models.Model):
     text = models.TextField(
         verbose_name='Текст нового поста',
         help_text='Введите текст поста')
+    title = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name='Заголовок',
+        help_text='Введите текст заголовка')
     pub_date = models.DateTimeField(
         verbose_name='Дата',
         auto_now_add=True)

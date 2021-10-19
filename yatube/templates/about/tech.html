@@ -1,35 +1,58 @@
 {% extends "base.html" %}
 {% block title %}Технологии{% endblock %}
 {% block content %}
-{% comment %} Колонки с отступом сверху и снизу {% endcomment %}
-<div class="row">
-  <h1 align="center">Вот что я умею</h1>
-</div>  
-  {% comment %}
-    Боковой блок со списком технологий 
-    Займет всю ширину блока на мобильном
-    и 25% при размерах экрана ≥768px
-  {% endcomment %}
-<div class="col-4"  
-  <aside class="col-12 col-md-3" >
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">
-        Python
-      </li>
-      <li class="list-group-item">
-        Django
-      </li>
-    </ul>
-  </aside>
-</div>
-  {% comment %}
-    Статья  
-    Займет всю ширину блока на мобильном
-    и 75% при размерах экрана ≥768px
-  {% endcomment %}
-<div class="col-8">
-  <article class="col-12 col-md-9" style="position: relative; left: 550px">
-    <p align="center">Еще не в совершенстве, но это временно</p>
-  </article>
-</div>
+{% load static %}
+<main>
+  <div class="container py-5">
+    
+    
+  <div class="row">
+    <h1>Технологии</h1>
+    <hr>
+
+    <div class="col-8 offset-2 d-flex justify-content-center">
+      <img class="author" src="{% static 'img\tech.png' %}" width="350" height="250">
+    </div>
+
+    <div class="col-lg-8 offset-lg-2 mt-3 col-12">
+      <h2>Языки программирования/разметки</h2>
+
+      <h3>Python 3.7</h3>
+      <p>Замечательный язык программирования, очень интересно его изучать</p>
+      <h3>HTML</h3>
+      <p>
+        HTML - стандартизированный язык разметки документов для просмотра веб-страниц в браузере.
+        Я до практикума еще его изучал, было интересно.
+      </p>
+      <h3>CSS</h3>
+      <p>
+        CSS - каскадные таблицы стилей. Позволяет сделать таблицу красивее
+      </p>
+
+      <h2 class="mt-5">Фреймворки</h2>
+      <h3>Django 2.2.16</h3>
+      <p>
+        Замечательный фреймворк с которым я познакомился в Яндекс.Практикум. Оказывается очень удобная штука)
+      </p>
+      <h3>Twitter Bootstrap v5.1.0</h3>
+      <p>Тоже очень удобная штука, позволяет навести красоту на сайте, не углубляясь в CSS</p>
+
+      <h2 class="mt-5">IDE</h2>
+      <h3>Visual Studio Code</h3>
+      <p>
+        Очень хороший редактор исходного кода, разработанный Microsoft для Windows, Linux и macOS. А главное бесплатный)) Для начинающего разработчика самое то
+      </p>
+
+      <h2 class="mt-5">Утилиты</h2>
+      <h3>flake8</h3>
+      <p>Поможет привести код в норму в соответствии с PEP8</p>
+      <h3>isort</h3>
+      <p>
+        Поможет расставить импорты так как этого требует PEP8.
+      </p>
+    </div>
+  </div>
+
+  </div>
+</main>
 {% endblock %}

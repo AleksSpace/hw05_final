@@ -10,7 +10,7 @@
   * PostgreSQL
   * Django ORM
 
-## установка:
+## Установка:
   * клонируйте репозиторий к себе на компьютер:
     * `git clone https://github.com/AleksSpace/hw05_final.git`
 
